@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Twitch 3-Level Custom Chat</title>
+    <!-- We load ComfyJS, a free tool that easily connects web pages to Twitch Chat -->
+    <script src="http://jsdelivr.net"></script>
+    <style>
+        body {
+            background-color: rgba(0, 0, 0, 0); /* Transparent background for Streamlabs */
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 90vh;
+            max-width: 400px;
+        }
+        .chat-message {
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black background */
+            padding: 8px 12px;
+            margin-top: 6px;
+            border-radius: 6px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .badge {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+        }
+        .username {
+            font-weight: bold;
+            color: #a970ff; /* Twitch Purple color */
+            margin-right: 8px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chat-container"></div>
+
+    <script>
+        // 🌟 STEP A: CHANGE THIS TO YOUR EXACT TWITCH CHANNEL NAME
+        const STREAMER_NAME = "MrManGuTTV";
+
+        // 🌟 STEP B: ADD YOUR VIEWERS TO THEIR LEVELS (Type names in LOWERCASE)
+        const viewerLevels = {
+            "cocoHn": 1,
+            "intocablezzzzz": 1,
+            "mangumarketinggodai": 3,
+            "super_supporter": 3,
+            "another_user": 3
+        };
+
+        // This function triggers automatically every time someone types a message
+        ComfyJS.onChat = (user, message, flags, self, extra) => {
+            const container = document.getElementById("chat-container");
+            const lowercaseUser = user.toLowerCase();
+
+            // Check what level the viewer is. If they aren't on the list, give them Level 1 by default.
+            let userLevel = viewerLevels[lowercaseUser] || 1;
+
+            // Create a new message block
+            const messageElement = document.createElement("div");
+            messageElement.className = "chat-message";
+
+            // Determine which custom badge image to load based on their level
+            let badgeSrc = "";
+            if (userLevel === 1) badgeSrc = "https://imgur.com/a/JaTp76o";
+            if (userLevel === 2) badgeSrc = "https://imgur.com/q41sfgo";
+            if (userLevel === 3) badgeSrc = "https://imgur.com/qskLuHA";
+
+            // Build the internal look of the message (Badge + Name + Text)
+            messageElement.innerHTML = `
+                <img class="badge" src="${badgeSrc}" alt="Lvl ${userLevel}">
+                <span class="username">${user}</span>
+                <span class="message-text">${message}</span>
+            `;
+
+            // Append it to our chat screen
+            container.appendChild(messageElement);
+
+            // Automatically scroll down to show new messages
+            window.scrollTo(0, document.body.scrollHeight);
+        };
+
+        // Connect the code to your live Twitch stream room
+        ComfyJS.Init(STREAMER_NAME);
+    </script>
+</body>
+</html>
